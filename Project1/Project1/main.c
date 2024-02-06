@@ -42,6 +42,13 @@ int main(void)
 
     soundArray[0] = LoadSound("resources/raylib_audio_resources/sound.wav");
 
+    Music music = LoadMusicStream("resources/raylib_audio_resources/country.mp3");
+
+    music.looping = true;
+    float pitch = 0.5f;
+
+    PlayMusicStream(music);
+
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
