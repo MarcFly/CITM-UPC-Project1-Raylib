@@ -38,6 +38,7 @@ int main(void)
     const int screenHeight = 450;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
     InitAudioDevice();
 
     soundArray[0] = LoadSound("resources/raylib_audio_resources/sound.wav");
@@ -46,6 +47,10 @@ int main(void)
 
     music.looping = true;
     float pitch = 0.5f;
+
+    Image image = LoadImage("resources/raylib_image_resources/logo_citm.png");
+    Texture2D texture = LoadTextureFromImage(image);
+    UnloadImage(image);
 
     PlayMusicStream(music);
 
@@ -73,6 +78,8 @@ int main(void)
 
         if (IsKeyPressed(KEY_SPACE))
             PlaySound(soundArray[0]);
+
+        UpdateMusicStream(music);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -81,9 +88,10 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+        DrawTexture(texture, screenWidth / 2 - texture.width / 2, screenHeight / 2 - texture.height / 2, WHITE);
 
-       
+        DrawText("Congrats! You created your first window!", 190, 350, 20, LIGHTGRAY);
+               
         DrawCircle(x, y, 35, DARKBLUE);
 
         EndDrawing();
@@ -93,6 +101,9 @@ int main(void)
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseAudioDevice();
+
+    UnloadTexture(texture);
+
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
