@@ -37,22 +37,28 @@ int main(void)
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+    InitWindow(screenWidth, screenHeight, "Raylib Handout 2");
 
     InitAudioDevice();
-
     soundArray[0] = LoadSound("resources/raylib_audio_resources/sound.wav");
-
     Music music = LoadMusicStream("resources/raylib_audio_resources/country.mp3");
-
     music.looping = true;
     float pitch = 0.5f;
 
-    Image image = LoadImage("resources/raylib_image_resources/logo_citm.png");
+    PlayMusicStream(music);
+
+    Image image = LoadImage("resources/images/logo_citm.png");
     Texture2D texture = LoadTextureFromImage(image);
     UnloadImage(image);
 
-    PlayMusicStream(music);
+    Texture2D scarfy = LoadTexture("resources/sprites/scarfy.png");
+
+    Vector2 position = { 350.0f, 280.0f };
+    Rectangle frameRec = { 0.0f, 0.0f, (float)scarfy.width / 6, (float)scarfy.height };
+    int currentFrame = 0;
+
+    int framesCounter = 0;
+    int framesSpeed = 8;            // Number of spritesheet frames shown by second
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -65,7 +71,7 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
+        // Update your variables here
         if (IsKeyDown(KEY_RIGHT)) x += speed_x;
         if (IsKeyDown(KEY_LEFT)) x -= speed_x;
         if (IsKeyDown(KEY_DOWN)) y += speed_y;
@@ -80,6 +86,18 @@ int main(void)
             PlaySound(soundArray[0]);
 
         UpdateMusicStream(music);
+
+        framesCounter++;
+
+        if (framesCounter >= (60 / framesSpeed))
+        {
+            framesCounter = 0;
+            currentFrame++;
+
+            if (currentFrame > 5) currentFrame = 0;
+
+            frameRec.x = (float)currentFrame * (float)scarfy.width / 6;
+        }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -88,9 +106,11 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        DrawTexture(texture, screenWidth / 2 - texture.width / 2, screenHeight / 2 - texture.height / 2, WHITE);
+        DrawTextureRec(scarfy, frameRec, position, WHITE);  // Draw part of the texture
 
-        DrawText("Congrats! You created your first window!", 190, 350, 20, LIGHTGRAY);
+        DrawText("(c) Scarfy sprite by Eiden Marsal", screenWidth - 200, screenHeight - 20, 10, GRAY);
+
+        DrawTexture(texture, 0, screenHeight -texture.height, WHITE);
                
         DrawCircle(x, y, 35, DARKBLUE);
 
@@ -103,6 +123,7 @@ int main(void)
     CloseAudioDevice();
 
     UnloadTexture(texture);
+    UnloadTexture(scarfy);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
