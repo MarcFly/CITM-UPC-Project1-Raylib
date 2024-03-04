@@ -6,7 +6,6 @@
 
 Sound soundArray[10];
 Music musicArray[10];
-Image image;
 Texture2D ship;
 Texture2D background;
 Texture2D explosion;
@@ -37,14 +36,10 @@ int main(void)
     PlayMusicStream(musicArray[0]);
 
     //Ship
-    image = LoadImage("resources/sprites/Ship_1.png");
-    ship = LoadTextureFromImage(image);
-    UnloadImage(image);
+    ship = LoadTexture("resources/sprites/Ship_1.png");
 
     //Background
-    image = LoadImage("resources/sprites/space_background.png");
-    background = LoadTextureFromImage(image);
-    UnloadImage(image);
+    background = LoadTexture("resources/sprites/space_background.png");
 
     //Explosion
     explosion = LoadTexture("resources/sprites/explosion_set.png");
