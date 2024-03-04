@@ -1,31 +1,15 @@
-/*******************************************************************************************
-*
-*   raylib [core] example - Basic window
-*
-*   Welcome to raylib!
-*
-*   To test examples, just press F6 and execute raylib_compile_execute script
-*   Note that compiled executable is placed in the same folder as .c file
-*
-*   You can find all basic examples on C:\raylib\raylib\examples folder or
-*   raylib official webpage: www.raylib.com
-*
-*   Enjoy using raylib. :)
-*
-*   Example originally created with raylib 1.0, last time updated with raylib 1.0
-*
-*   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
-*   BSD-like license that allows static linking with closed source software
-*
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
-*
-********************************************************************************************/
-
 #include "libraries/raylib/include/raylib.h"
 #include "raylib.h"
 #include <stdio.h>
 
+#define EXPLOSION_SIZE 16
+
 Sound soundArray[10];
+Music musicArray[10];
+Image image;
+Texture2D ship;
+Texture2D background;
+Texture2D explosion;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -39,32 +23,41 @@ int main(void)
 
     InitWindow(screenWidth, screenHeight, "Raylib Handout 2");
 
+    //Audio
     InitAudioDevice();
+
+    //Sound
     soundArray[0] = LoadSound("resources/raylib_audio_resources/sound.wav");
-    Music music = LoadMusicStream("resources/raylib_audio_resources/country.mp3");
-    music.looping = true;
+
+    //Music
+    musicArray[0] = LoadMusicStream("resources/raylib_audio_resources/country.mp3");
+    musicArray[0].looping = true;
     float pitch = 0.5f;
 
-    PlayMusicStream(music);
+    PlayMusicStream(musicArray[0]);
 
-    Image image = LoadImage("resources/images/logo_citm.png");
-    Texture2D texture = LoadTextureFromImage(image);
+    //Ship
+    image = LoadImage("resources/sprites/Ship_1.png");
+    ship = LoadTextureFromImage(image);
     UnloadImage(image);
 
-    Texture2D scarfy = LoadTexture("resources/sprites/scarfy.png");
+    //Background
+    image = LoadImage("resources/sprites/space_background.png");
+    background = LoadTextureFromImage(image);
+    UnloadImage(image);
 
-    Vector2 position = { 350.0f, 280.0f };
-    Rectangle frameRec = { 0.0f, 0.0f, (float)scarfy.width / 6, (float)scarfy.height };
+    //Explosion
+    explosion = LoadTexture("resources/sprites/explosion_set.png");
     int currentFrame = 0;
-
     int framesCounter = 0;
     int framesSpeed = 8;            // Number of spritesheet frames shown by second
+    int explosionColor = 0;
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    static double x= 120, y = 35;
+    static double x = 400, y = 400;
     static double speed_x = 2, speed_y = 2;
 
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -77,15 +70,22 @@ int main(void)
         if (IsKeyDown(KEY_DOWN)) y += speed_y;
         if (IsKeyDown(KEY_UP)) y -= speed_y;
 
-        if (y > screenHeight) y = screenHeight;
+        if (y > screenHeight - ship.height*2) y = screenHeight - ship.height*2;
         if (y < 0) y = 0;
-        if (x > screenWidth) x = screenWidth;
+        if (x > screenWidth - ship.width*2) x = screenWidth - ship.width * 2;
         if (x < 0) x = 0;
 
         if (IsKeyPressed(KEY_SPACE))
             PlaySound(soundArray[0]);
 
-        UpdateMusicStream(music);
+        if (IsKeyPressed(KEY_E))
+        {
+            explosionColor++;
+            if (explosionColor >= 5)
+            {
+                explosionColor = 0;
+            }
+        }
 
         framesCounter++;
 
@@ -94,10 +94,10 @@ int main(void)
             framesCounter = 0;
             currentFrame++;
 
-            if (currentFrame > 5) currentFrame = 0;
-
-            frameRec.x = (float)currentFrame * (float)scarfy.width / 6;
+            if (currentFrame > 9) currentFrame = 0;
         }
+
+        UpdateMusicStream(musicArray[0]);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -106,28 +106,27 @@ int main(void)
 
         ClearBackground(RAYWHITE);
 
-        DrawTextureRec(scarfy, frameRec, position, WHITE);  // Draw part of the texture
+        DrawTexture(background, 0, 0, WHITE);
 
-        DrawText("(c) Scarfy sprite by Eiden Marsal", screenWidth - 200, screenHeight - 20, 10, GRAY);
+        DrawTextureEx(ship, (Vector2) { x, y }, 0, 2.0f, WHITE);
 
-        DrawTexture(texture, 0, screenHeight -texture.height, WHITE);
-               
-        DrawCircle(x, y, 35, DARKBLUE);
+        Rectangle source = (Rectangle){ currentFrame * EXPLOSION_SIZE, explosionColor * EXPLOSION_SIZE, EXPLOSION_SIZE, EXPLOSION_SIZE };
+        Rectangle dest = (Rectangle){ screenWidth / 2, screenHeight / 2, EXPLOSION_SIZE * 2, EXPLOSION_SIZE * 2 };
+        DrawTexturePro(explosion, source, dest, (Vector2) { dest.width/2, dest.height/2 }, 0, WHITE);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
-
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseAudioDevice();
 
-    UnloadTexture(texture);
-    UnloadTexture(scarfy);
+    UnloadTexture(ship);
+    UnloadTexture(background);
+    UnloadTexture(explosion);
 
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
 }
-// raylib example source code
